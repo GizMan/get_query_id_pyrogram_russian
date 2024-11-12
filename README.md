@@ -18,7 +18,7 @@ A Python script using Pyrogram to manage sessions and retrieve query IDs through
 
 2. **Install Required Libraries**
    ```bash
-   pip install -r requirements.txt
+   pip install pyrogram tgcrypto
    ```
 
 3. **Configure API Credentials**
