@@ -1,7 +1,3 @@
-# get_query_id_pyrogram
-
-A Python script using Pyrogram to manage sessions and retrieve query IDs through Telegram bot webviews. This script requires configuring API credentials for Telegram.
-
 ## Requirements
 
 - Python 3.7+
@@ -36,24 +32,3 @@ A Python script using Pyrogram to manage sessions and retrieve query IDs through
      ```bash
      python main.py
      ```
-   - Follow the on-screen prompts:
-     - **Option 1:** Create a new session by entering your phone number.
-     - **Option 2:** Request query IDs from all available sessions.
-     - **Option 3:** Exit the program.
-
-## Usage
-
-1. **Creating a New Session**
-   - When prompted, choose `1` to create a new session.
-   - Enter your Telegram phone number to initialize and store the session in the `sessions` directory.
-
-2. **Retrieving Query IDs**
-   - Choose `2` to retrieve query IDs for the configured bot.
-   - Follow the prompts to select or add a bot with its referral URL.
-   - The script will create two output files, `user.txt` and `query_id.txt`, storing the retrieved user and query IDs.
-
-## Notes
-
-- Ensure that the `sessions` folder exists in the root directory.
-- Edit the `bot.json` file to manage multiple bot usernames and their referral URLs.
-
