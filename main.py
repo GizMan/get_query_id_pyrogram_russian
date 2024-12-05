@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import os
 import sys
 import json
@@ -5,7 +7,7 @@ import urllib.parse
 from pyrogram import Client
 from pyrogram.raw import functions
 
-# Pastikan folder 'sessions' ada
+# Убедитесь, что папка 'sessions' существует
 if not os.path.exists("sessions"):
     os.makedirs("sessions")
 
@@ -14,29 +16,34 @@ DEFAULT_CONFIG = {
     "api_id": 0,
     "api_hash": "your_api_hash_here"
 }
+
+# Создаем файл конфигурации, если его нет
 if not os.path.exists(CONFIG_FILE):
     with open(CONFIG_FILE, "w") as file:
         json.dump(DEFAULT_CONFIG, file, indent=4)
-        print("Harap isi api_id dan api_hash Anda di dalam config.json, lalu jalankan ulang program.")
+        print("Пожалуйста, заполните api_id и api_hash в config.json, затем перезапустите программу.")
         sys.exit()
+
+# Читаем файл конфигурации
 with open(CONFIG_FILE, "r") as file:
     config = json.load(file)
 if config["api_id"] == 0 or config["api_hash"] == "your_api_hash_here":
-    print("Harap isi api_id dan api_hash Anda di dalam config.json, lalu jalankan ulang program.")
+    print("Пожалуйста, заполните api_id и api_hash в config.json, затем перезапустите программу.")
     sys.exit()
-    
-def buat_sesi_baru():
+
+# Функция для создания новой сессии
+def создать_новую_сессию():
     api_id, api_hash = config["api_id"], config["api_hash"]
-    phone_number = input("Masukkan nomor telepon: ")
-    session_file = f"sessions/{phone_number}.session"
-    if os.path.exists(session_file):
-        print(f"Sesi untuk nomor {phone_number} sudah ada.")
+    номер_телефона = input("Введите номер телефона: ")
+    файл_сессии = f"sessions/{номер_телефона}.session"
+    if os.path.exists(файл_сессии):
+        print(f"Сессия для номера {номер_телефона} уже существует.")
         return
 
-    # Membuat klien baru dengan nama file sesuai nomor telepon
+    # Создаем нового клиента с именем файла, соответствующим номеру телефона
     app = Client(
-        name=phone_number,
-        phone_number=phone_number,
+        name=номер_телефона,
+        phone_number=номер_телефона,
         api_id=api_id,
         api_hash=api_hash,
         workdir='sessions',
@@ -44,87 +51,87 @@ def buat_sesi_baru():
         app_version='pyrogram'
     )
     with app:
-        print(f"Sesi untuk nomor {phone_number} berhasil dibuat dan disimpan di folder 'sessions/'.")
+        print(f"Сессия для номера {номер_телефона} успешно создана и сохранена в папке 'sessions/'.")
 
 BOT_FILE = "bot.json"
-# Fungsi untuk memuat atau membuat file bot.json
-def load_bot_data():
+# Функция для загрузки или создания файла bot.json
+def загрузить_данные_ботов():
     if not os.path.exists(BOT_FILE):
         with open(BOT_FILE, 'w') as file:
             json.dump({}, file)
     with open(BOT_FILE, 'r') as file:
         return json.load(file)
 
-# Fungsi untuk menyimpan data ke file bot.json
-def save_bot_data(data):
+# Функция для сохранения данных в bot.json
+def сохранить_данные_ботов(data):
     with open(BOT_FILE, 'w') as file:
         json.dump(data, file, indent=2)
 
-# Fungsi untuk menampilkan daftar bot yang tersedia
-def select_bot():
-    bot_data = load_bot_data()
-    bot_usernames = list(bot_data.keys())
+# Функция для отображения списка доступных ботов
+def выбрать_бота():
+    данные_ботов = загрузить_данные_ботов()
+    имена_ботов = list(данные_ботов.keys())
 
-    print("Pilih Bot:")
-    print("0. Kembali")
-    print("1. Input bot untuk sesi ini")
-    print("2. Tambah bot baru")
+    print("Выберите бота:")
+    print("0. Вернуться")
+    print("1. Ввести данные бота для этой сессии")
+    print("2. Добавить нового бота")
 
-    for index, bot_username in enumerate(bot_usernames, start=3):
-        print(f"{index}. {bot_username}")
+    for index, имя_бота in enumerate(имена_ботов, start=3):
+        print(f"{index}. {имя_бота}")
 
-    choice = input("Masukkan pilihan Anda: ")
-    if choice == '0':
-        print("Kembali ke menu sebelumnya.")
+    выбор = input("Введите ваш выбор: ")
+    if выбор == '0':
+        print("Возвращение в предыдущее меню.")
         return 0
-    elif choice == '1':
-        bot_username = input("Silakan masukkan bot username (misalnya, @YourBot): ")
-        referral_url = input("Silakan masukkan URL Refferal: ")
-        print(f"Bot {bot_username} dengan URL: {referral_url} telah diinput untuk sesi ini.")
-        return {'bot_username': bot_username, 'referral_url': referral_url}
-    elif choice == '2':
-        bot_username = input("Silakan masukkan bot username (misalnya, @YourBot): ")
-        referral_url = input("Silakan masukkan URL Refferal: ")
-        bot_data[bot_username] = referral_url
-        save_bot_data(bot_data)
-        print(f"Bot {bot_username} telah disimpan dengan URL: {referral_url}")
-        return {'bot_username': bot_username, 'referral_url': referral_url}
+    elif выбор == '1':
+        имя_бота = input("Введите имя бота (например, @YourBot): ")
+        ссылка_реферал = input("Введите реферальную ссылку: ")
+        print(f"Бот {имя_бота} с URL: {ссылка_реферал} добавлен для этой сессии.")
+        return {'bot_username': имя_бота, 'referral_url': ссылка_реферал}
+    elif выбор == '2':
+        имя_бота = input("Введите имя бота (например, @YourBot): ")
+        ссылка_реферал = input("Введите реферальную ссылку: ")
+        данные_ботов[имя_бота] = ссылка_реферал
+        сохранить_данные_ботов(данные_ботов)
+        print(f"Бот {имя_бота} сохранен с URL: {ссылка_реферал}")
+        return {'bot_username': имя_бота, 'referral_url': ссылка_реферал}
     else:
-        index = int(choice) - 3
-        if 0 <= index < len(bot_usernames):
-            bot_username = bot_usernames[index]
-            referral_url = bot_data[bot_username]
-            print(f"Menggunakan bot: {bot_username} dengan URL: {referral_url}")
-            return {'bot_username': bot_username, 'referral_url': referral_url}
+        индекс = int(выбор) - 3
+        if 0 <= индекс < len(имена_ботов):
+            имя_бота = имена_ботов[индекс]
+            ссылка_реферал = данные_ботов[имя_бота]
+            print(f"Используем бот: {имя_бота} с URL: {ссылка_реферал}")
+            return {'bot_username': имя_бота, 'referral_url': ссылка_реферал}
         else:
-            print("Pilihan tidak valid.")
+            print("Неверный выбор.")
             return None
 
-def minta_query_id_ke_semua_klien():
-    
-    session_files = [f for f in os.listdir("sessions") if f.endswith(".session")]
-    if not session_files:
-        print("Tidak ada sesi yang ditemukan di folder 'sessions'.")
+# Функция для получения query_id от всех клиентов
+def запросить_query_id_у_всех_клиентов():
+    файлы_сессий = [f for f in os.listdir("sessions") if f.endswith(".session")]
+    if not файлы_сессий:
+        print("В папке 'sessions' не найдено ни одной сессии.")
         return
 
-    bot_selection = select_bot()
-    if bot_selection == 0:
+    выбранный_бот = выбрать_бота()
+    if выбранный_бот == 0:
         return
-    if not bot_selection:
+    if not выбранный_бот:
         return
     
-    bot_username = bot_selection['bot_username']
-    referral_url = bot_selection['referral_url']
+    имя_бота = выбранный_бот['bot_username']
+    ссылка_реферал = выбранный_бот['referral_url']
     
-    user = []
+    пользователи = []
     query_id = []
 
-    for session_file in session_files:
-        session_name = session_file.replace(".session", "")
+    for файл_сессии in файлы_сессий:
+        имя_сессии = файл_сессии.replace(".session", "")
 
         app = Client(
-            name=session_name,
-            phone_number=session_name,
+            name=имя_сессии,
+            phone_number=имя_сессии,
             api_id=config["api_id"],
             api_hash=config["api_hash"],
             workdir='sessions',
@@ -132,74 +139,57 @@ def minta_query_id_ke_semua_klien():
             app_version='pyrogram'
         )
         with app:
-            attempt = 0
-            while attempt < 3:
+            попытка = 0
+            while попытка < 3:
                 try:
-                    bot_peer = app.resolve_peer(bot_username)
-                    start_param = referral_url.split("startapp=")[1]
+                    bot_peer = app.resolve_peer(имя_бота)
+                    start_param = ссылка_реферал.split("startapp=")[1]
                     result = app.invoke(functions.messages.RequestWebView(
                         peer=bot_peer,
                         bot=bot_peer,
                         platform="android",
-                        url=referral_url,
-                        from_bot_menu=False,
-                        start_param=start_param,
-                        
-                    ))
-                    result1 = app.invoke(functions.messages.RequestWebView(
-                        peer=bot_peer,
-                        bot=bot_peer,
-                        platform="android",
-                        url=result.url,
+                        url=ссылка_реферал,
                         from_bot_menu=False,
                         start_param=start_param
                     ))
-                    result2 = app.invoke(functions.messages.RequestWebView(
-                        peer=bot_peer,
-                        bot=bot_peer,
-                        platform="android",
-                        url=result1.url,
-                        from_bot_menu=False,
-                        start_param=start_param
-                    ))
+                    decoded_url = urllib.parse.unquote(result.url)
+                    extracted_user = decoded_url.split("tgWebAppData=")[1].split("&tgWebAppVersion=")[0]
+                    пользователи.append(extracted_user)
+                    query_id.append(extracted_user)
                     
-                    decoded_once = urllib.parse.unquote(result1.url)
-                    extracted_user = decoded_once.split("tgWebAppData=")[1].split("&tgWebAppVersion=")[0]
-                    user.append(extracted_user)
-                    extracted_query_id = decoded_once.split("tgWebAppData=")[-1].split("&tgWebAppVersion=")[0]
-                    query_id.append(extracted_query_id)
-                    
-                    print(f"\x1b[32mGET Query ID\x1b[0m : {session_name}")
-                    attempt = 3
+                    print(f"\x1b[32mGET Query ID\x1b[0m : {имя_сессии}")
+                    попытка = 3
                 except Exception as e:
-                    attempt += 1
-                    print(f"Gagal membuka WebView untuk {session_name}: {e}")
+                    попытка += 1
+                    print(f"Не удалось открыть WebView для {имя_сессии}: {e}")
         
     with open("user.txt", "w") as data_file:
-        data_file.writelines("\n".join(user))
+        data_file.writelines("\n".join(пользователи))
     with open("query_id.txt", "w") as query_id_file:
         query_id_file.writelines("\n".join(query_id))
-    
-def tampilkan_menu():
-    print("\n--- Menu ---")
-    print("1. Buat sesi baru")
-    print("2. Minta query ID ke semua klien")
-    print("3. Exit")
 
+# Функция для отображения меню
+def показать_меню():
+    print("\n--- Меню ---")
+    print("1. Создать новую сессию")
+    print("2. Запросить query ID у всех клиентов")
+    print("3. Выход")
+
+# Основная функция
 def main():
     while True:
-        tampilkan_menu()
-        pilihan = input("Pilih menu: ")
+        показать_меню()
+        выбор = input("Выберите пункт меню: ")
 
-        if pilihan == "1":
-            buat_sesi_baru()
-        elif pilihan == "2":
-            minta_query_id_ke_semua_klien()
-        elif pilihan == "3":
-            print("Keluar dari program.")
+        if выбор == "1":
+            создать_новую_сессию()
+        elif выбор == "2":
+            запросить_query_id_у_всех_клиентов()
+        elif выбор == "3":
+            print("Выход из программы.")
             sys.exit()
         else:
-            print("Pilihan tidak valid. Silakan coba lagi.")
+            print("Неверный выбор. Попробуйте снова.")
 
 if __name__ == "__main__":
     main()
