@@ -31,7 +31,6 @@ api_id и api_hash, которые можно получить на my.telegram.
 
 ▶️ Использование
 Для запуска скрипта выполните команду:
-   - Start the program by running:
      ```bash
      python main.py
      ```
