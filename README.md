@@ -23,10 +23,8 @@ api_id и api_hash, которые можно получить на my.telegram.
 Откройте этот файл и заполните поля api_id и api_hash:
    - Example:
      ```json
-     {
        "api_id": 1234567,
        "api_hash": "your_api_hash_here"
-     }
      ```
 
 ▶️ Использование
