@@ -21,7 +21,7 @@ api_id и api_hash, которые можно получить на my.telegram.
 3. Настройка API-ключей
 При первом запуске скрипт создаст файл config.json в корневой папке проекта.
 Откройте этот файл и заполните поля api_id и api_hash:
-   - Example:
+   - Пример:
      ```json
        "api_id": 1234567,
        "api_hash": "your_api_hash_here"
