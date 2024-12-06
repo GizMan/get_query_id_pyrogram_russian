@@ -4,12 +4,17 @@ import os
 import sys
 import json
 import urllib.parse
+import random
 from pyrogram import Client
 from pyrogram.raw import functions
 
 # Убедитесь, что папка 'sessions' существует
 if not os.path.exists("sessions"):
     os.makedirs("sessions")
+
+# Убедитесь, что папка 'query_id' существует
+if not os.path.exists("query_id"):
+    os.makedirs("query_id")
 
 CONFIG_FILE = "config.json"
 DEFAULT_CONFIG = {
@@ -31,29 +36,21 @@ if config["api_id"] == 0 or config["api_hash"] == "your_api_hash_here":
     print("Пожалуйста, заполните api_id и api_hash в config.json, затем перезапустите программу.")
     sys.exit()
 
-# Функция для создания новой сессии
-def создать_новую_сессию():
-    api_id, api_hash = config["api_id"], config["api_hash"]
-    номер_телефона = input("Введите номер телефона: ")
-    файл_сессии = f"sessions/{номер_телефона}.session"
-    if os.path.exists(файл_сессии):
-        print(f"Сессия для номера {номер_телефона} уже существует.")
-        return
-
-    # Создаем нового клиента с именем файла, соответствующим номеру телефона
-    app = Client(
-        name=номер_телефона,
-        phone_number=номер_телефона,
-        api_id=api_id,
-        api_hash=api_hash,
-        workdir='sessions',
-        device_model='Ulul Azmi',
-        app_version='pyrogram'
-    )
-    with app:
-        print(f"Сессия для номера {номер_телефона} успешно создана и сохранена в папке 'sessions/'.")
+# Список доступных устройств
+devices = [
+    'SM-G960F', 'Pixel 5', 'SM-A505F', 'Pixel 4a', 'Pixel 6 Pro', 'SM-N975F',
+    'SM-G973F', 'Pixel 3', 'SM-G980F', 'Pixel 5a', 'SM-G998B', 'Pixel 4',
+    'SM-G991B', 'SM-G996B', 'SM-F711B', 'SM-F916B', 'SM-G781B', 'SM-N986B',
+    'SM-N981B', 'Pixel 2', 'Pixel 2 XL', 'Pixel 3 XL', 'Pixel 4 XL',
+    'Pixel 5 XL', 'Pixel 6', 'Pixel 6 XL', 'Pixel 6a', 'Pixel 7', 'Pixel 7 Pro',
+    'OnePlus 8', 'OnePlus 8 Pro', 'OnePlus 9', 'OnePlus 9 Pro', 'OnePlus Nord', 'OnePlus Nord 2',
+    'OnePlus Nord CE', 'OnePlus 10', 'OnePlus 10 Pro', 'OnePlus 10T', 'OnePlus 10T Pro',
+    'Xiaomi Mi 9', 'Xiaomi Mi 10', 'Xiaomi Mi 11', 'Xiaomi Redmi Note 8', 'Xiaomi Redmi Note 9',
+    'Huawei P30', 'Huawei P40', 'Huawei Mate 30', 'Huawei Mate 40'
+]
 
 BOT_FILE = "bot.json"
+
 # Функция для загрузки или создания файла bot.json
 def загрузить_данные_ботов():
     if not os.path.exists(BOT_FILE):
@@ -74,30 +71,15 @@ def выбрать_бота():
 
     print("Выберите бота:")
     print("0. Вернуться")
-    print("1. Ввести данные бота для этой сессии")
-    print("2. Добавить нового бота")
 
-    for index, имя_бота in enumerate(имена_ботов, start=3):
+    for index, имя_бота in enumerate(имена_ботов, start=1):
         print(f"{index}. {имя_бота}")
 
     выбор = input("Введите ваш выбор: ")
     if выбор == '0':
-        print("Возвращение в предыдущее меню.")
         return 0
-    elif выбор == '1':
-        имя_бота = input("Введите имя бота (например, @YourBot): ")
-        ссылка_реферал = input("Введите реферальную ссылку: ")
-        print(f"Бот {имя_бота} с URL: {ссылка_реферал} добавлен для этой сессии.")
-        return {'bot_username': имя_бота, 'referral_url': ссылка_реферал}
-    elif выбор == '2':
-        имя_бота = input("Введите имя бота (например, @YourBot): ")
-        ссылка_реферал = input("Введите реферальную ссылку: ")
-        данные_ботов[имя_бота] = ссылка_реферал
-        сохранить_данные_ботов(данные_ботов)
-        print(f"Бот {имя_бота} сохранен с URL: {ссылка_реферал}")
-        return {'bot_username': имя_бота, 'referral_url': ссылка_реферал}
     else:
-        индекс = int(выбор) - 3
+        индекс = int(выбор) - 1
         if 0 <= индекс < len(имена_ботов):
             имя_бота = имена_ботов[индекс]
             ссылка_реферал = данные_ботов[имя_бота]
@@ -123,11 +105,11 @@ def запросить_query_id_у_всех_клиентов():
     имя_бота = выбранный_бот['bot_username']
     ссылка_реферал = выбранный_бот['referral_url']
     
-    пользователи = []
     query_id = []
 
     for файл_сессии in файлы_сессий:
         имя_сессии = файл_сессии.replace(".session", "")
+        print(f"Работаем с сессией: {имя_сессии}")
 
         app = Client(
             name=имя_сессии,
@@ -135,43 +117,56 @@ def запросить_query_id_у_всех_клиентов():
             api_id=config["api_id"],
             api_hash=config["api_hash"],
             workdir='sessions',
-            device_model='Ulul Azmi',
+            device_model=random.choice(devices),
             app_version='pyrogram'
         )
-        with app:
-            попытка = 0
-            while попытка < 3:
-                try:
-                    bot_peer = app.resolve_peer(имя_бота)
-                    start_param = ссылка_реферал.split("startapp=")[1]
-                    result = app.invoke(functions.messages.RequestWebView(
-                        peer=bot_peer,
-                        bot=bot_peer,
-                        platform="android",
-                        url=ссылка_реферал,
-                        from_bot_menu=False,
-                        start_param=start_param
-                    ))
-                    decoded_url = urllib.parse.unquote(result.url)
-                    extracted_user = decoded_url.split("tgWebAppData=")[1].split("&tgWebAppVersion=")[0]
-                    пользователи.append(extracted_user)
-                    query_id.append(extracted_user)
-                    
-                    print(f"\x1b[32mGET Query ID\x1b[0m : {имя_сессии}")
-                    попытка = 3
-                except Exception as e:
-                    попытка += 1
-                    print(f"Не удалось открыть WebView для {имя_сессии}: {e}")
-        
-    with open("user.txt", "w") as data_file:
-        data_file.writelines("\n".join(пользователи))
-    with open("query_id.txt", "w") as query_id_file:
+
+        try:
+            with app:
+                попытка = 0
+                while попытка < 3:
+                    try:
+                        bot_peer = app.resolve_peer(имя_бота)
+                        # Разделяем ссылку для правильного параметра start
+                        start_param = ссылка_реферал.split("startapp=")[1] if "startapp=" in ссылка_реферал else ссылка_реферал.split("start=")[1]
+                        
+                        # Используем RequestWebView для извлечения query_id
+                        result = app.invoke(functions.messages.RequestWebView(
+                            peer=bot_peer,
+                            bot=bot_peer,
+                            platform="android",
+                            url=ссылка_реферал,
+                            from_bot_menu=False,
+                            start_param=start_param
+                        ))
+                        
+                        # Декодируем URL и извлекаем query_id
+                        decoded_url = urllib.parse.unquote(result.url)
+                        extracted_user = decoded_url.split("tgWebAppData=")[1].split("&tgWebAppVersion=")[0]
+                        query_id.append(extracted_user)
+
+                        # Зеленый цвет для успешного получения
+                        print(f"\033[32mGET Query ID: {имя_сессии}, Получен.\033[0m")
+                        попытка = 3  # Выход из цикла при успешном выполнении
+                    except Exception as e:
+                        попытка += 1
+                        # Красный цвет для ошибки
+                        print(f"\033[31mНе удалось открыть WebView для {имя_сессии}: {e}\033[0m")
+
+        except Exception as e:
+            # Красный цвет для ошибки
+            print(f"\033[31mОшибка при работе с сессией {имя_сессии}: {e}\033[0m")
+
+    # Сохраняем только query_id в файл в папку query_id
+    with open(f"query_id/{имя_бота}_query_id.txt", "w") as query_id_file:
         query_id_file.writelines("\n".join(query_id))
+
+    print(f"Все query_id для бота @{имя_бота} готовы и сохранены в файл.")
 
 # Функция для отображения меню
 def показать_меню():
     print("\n--- Меню ---")
-    print("1. Создать новую сессию")
+    print("1. Добавить нового бота")
     print("2. Запросить query ID у всех клиентов")
     print("3. Выход")
 
@@ -182,14 +177,19 @@ def main():
         выбор = input("Выберите пункт меню: ")
 
         if выбор == "1":
-            создать_новую_сессию()
+            имя_бота = input("Введите имя бота (например, @YourBot): ")
+            ссылка_реферал = input("Введите реферальную ссылку: ")
+            данные_ботов = загрузить_данные_ботов()
+            данные_ботов[имя_бота] = ссылка_реферал
+            сохранить_данные_ботов(данные_ботов)
+            print(f"Бот {имя_бота} добавлен с URL: {ссылка_реферал}")
         elif выбор == "2":
             запросить_query_id_у_всех_клиентов()
         elif выбор == "3":
             print("Выход из программы.")
-            sys.exit()
+            break
         else:
-            print("Неверный выбор. Попробуйте снова.")
+            print("Неверный выбор. Попробуйте еще раз.")
 
 if __name__ == "__main__":
     main()
